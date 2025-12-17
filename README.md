@@ -8,17 +8,27 @@ This repo contains two apps:
 - Docker Desktop (macOS)
 
 ## Quick start
+
+Make sure the `./stack` script is executable:
+```zsh
+chmod +x ./stack
+```
+
+Keep in mind that the first run may take a few minutes to set up everything.
+Also, the web app may take a minute to be available as it needs to build the Next.js app.
+
 ```zsh
 # Start the stack (will setup API and setup MySQL seed data on first run)
 ./stack start
 
-# Remove the stack
+# Remove the stack when done (stops and removes containers, networks, volumes, and images created by up)
 ./stack down
 ```
 
 ## Services
 - API: http://localhost:8800
 - Web: http://localhost:8900
+- Dashboard with stats: http://localhost:8900/dashboard
 - MySQL: host 127.0.0.1:3366 (db `starwars`, user `starwars`, pass `starwars`)
 
 ## Volumes and live reload
