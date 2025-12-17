@@ -35,3 +35,10 @@ export type MoviesByTitleResponse = {
 export type MoviesByIdResponse = {
   data?: Movie;
 };
+
+export type StatsResponse = {
+  top_movie_queries_percentage?: Record<string, number>;
+  top_person_queries_percentage?: Record<string, number>;
+  average_request_time_ms?: Record<string, number>;
+  popular_hours_percentage?: Record<string, number>;
+}
