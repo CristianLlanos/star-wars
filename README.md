@@ -20,7 +20,7 @@ Keep in mind that the first run may take a few minutes to set up everything.
 Also, the web app may take a minute to be available as it needs to build the Next.js app.
 
 ```zsh
-# Start the stack (will setup API and setup MySQL seed data on first run)
+# Start the stack (will setup API, seeds MySQL with data on first run, and start all services including Cron jobs, Queue workers, etc.)
 ./stack start
 
 # Remove the stack when done (stops and removes containers, networks, volumes, and images created by up)
@@ -69,9 +69,9 @@ docker compose exec web sh -lc 'npm install'
 ./stack logs api web
 ```
 
-## The start script
+## The `start` script
 
-The `./stack start` command is an startup script that manages the entire development environment:
+The `./stack start` command is a startup script that manages the entire development environment:
 
 **What it does:**
 - **First-run detection**: Automatically detects if this is your first time running the stack and performs one-time setup
@@ -87,3 +87,11 @@ The `./stack start` command is an startup script that manages the entire develop
 - `./stack start --setup --no-seed`: Skips database seeding during setup
 
 The script creates a `.bootstrapped` marker file after the first successful setup to avoid re-running setup on subsequent starts.
+
+## Documentation
+
+For detailed information about each component of the stack, see:
+
+- **[scripts/README.md](scripts/README.md)** - Complete guide to all stack management scripts (start, setup, seed, logs, stop, down)
+- **[star-wars-api/README.md](star-wars-api/README.md)** - Laravel API documentation (structure, routes, commands, modules)
+- **[star-wars-web/README.md](star-wars-web/README.md)** - Next.js web app documentation (structure, hooks, pages, setup)
