@@ -17,8 +17,8 @@ This repo contains two apps:
 ```
 
 ## Services
-- API: http://localhost:8000
-- Web: http://localhost:8100
+- API: http://localhost:8800
+- Web: http://localhost:8900
 - MySQL: host 127.0.0.1:3366 (db `starwars`, user `starwars`, pass `starwars`)
 
 ## Volumes and live reload
