@@ -171,7 +171,7 @@ All routes are prefixed with `/api` and include automatic stats tracking middlew
 
 ### Stats Module
 
-- **`php artisan stats:compute`** - Compute and display analytics from event logs
+- **`php artisan stats:compute`** - `Compute`, `cache` and `display` analytics from event logs
   - Displays tables for:
     - Top movie queries (percentage)
     - Top person queries (percentage)
@@ -191,7 +191,7 @@ The API includes automated scheduled tasks defined in `routes/console.php`:
 - **Retries**: 1 attempt
 
 **What it does**:
-Automatically computes and caches analytics data from event logs:
+Automatically `computes` and `caches` analytics data from event logs:
 1. Top movie queries (percentage distribution)
 2. Top person queries (percentage distribution)
 3. Average request times by endpoint
