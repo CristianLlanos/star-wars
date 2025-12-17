@@ -29,8 +29,9 @@ Also, the web app may take a minute to be available as it needs to build the Nex
 
 ## Services
 - Web: http://localhost:8900
-- Stats: http://localhost:8900/dashboard
+- Stats Web: http://localhost:8900/dashboard
 - API: http://localhost:8800
+- Stats API: http://localhost:8800/api/stats
 - MySQL: host 127.0.0.1:3366 (db `starwars`, user `starwars`, pass `starwars`)
 
 ## Volumes and live reload
