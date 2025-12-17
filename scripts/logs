@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Tail compose logs; pass optional service names or flags
+# Examples:
+#   ./logs                # all services
+#   ./logs api web        # specific services
+#   ./logs --since=1m     # recent logs
+
+exec docker compose logs -f "$@"

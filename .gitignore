@@ -1,0 +1,8 @@
+# Bootstrap marker (created by ./start)
+.bootstrapped
+
+# MySQL data: ignore contents but keep folder
+.mysql/*
+
+# JetBrains IDEs
+.idea/

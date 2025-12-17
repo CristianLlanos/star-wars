@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Shut down the Docker Compose stack
+# Optional flags are passed through, e.g.:
+#   ./down -v             # remove volumes
+#   ./down --remove-orphans
+
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BOOTSTRAP_FILE="$PROJECT_ROOT/.bootstrapped"
+MYSQL_DIR="$PROJECT_ROOT/.mysql"
+
+# Run docker compose down while preserving exit code even with set -e
+set +e
+docker compose down "$@"
+STATUS=$?
+set -e
+
+if [[ $STATUS -eq 0 ]]; then
+  # Remove bootstrap marker
+  if [[ -f "$BOOTSTRAP_FILE" ]]; then
+    echo "[down] Removing bootstrap marker: $BOOTSTRAP_FILE"
+    rm -f "$BOOTSTRAP_FILE"
+  else
+    echo "[down] No bootstrap marker found (skipping)."
+  fi
+  # Recursively remove local MySQL data directory
+  if [[ -d "$MYSQL_DIR" ]]; then
+    echo "[down] Removing MySQL data directory: $MYSQL_DIR"
+    rm -rf "$MYSQL_DIR"
+  else
+    echo "[down] No MySQL data directory found at $MYSQL_DIR (skipping)."
+  fi
+else
+  echo "[down] docker compose down failed (exit $STATUS). Not removing bootstrap marker or MySQL data dir." >&2
+fi
+
+exit $STATUS

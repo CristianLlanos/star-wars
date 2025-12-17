@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# One-time API setup: install deps and run composer setup
+# Ensures MySQL is up first
+# Usage:
+#   setup [--no-seed|--with-seed] [--no-cache]
+# Defaults: seeds after setup; uses Docker build cache unless --no-cache is passed.
+
+SEED_AFTER_SETUP=1
+BUILD_CACHE_FLAG=""
+MYSQL_CONTAINER_NAME=star-wars-mysql
+
+for arg in "$@"; do
+  case "$arg" in
+    --no-seed)
+      SEED_AFTER_SETUP=0
+      ;;
+    --with-seed)
+      SEED_AFTER_SETUP=1
+      ;;
+    --no-cache)
+      BUILD_CACHE_FLAG="--no-cache"
+      ;;
+    --help|-h)
+      echo "Usage: setup [--no-seed|--with-seed] [--no-cache]"
+      echo "  --no-seed    Skip running the seed step after API setup"
+      echo "  --with-seed  Force running the seed step (default behavior)"
+      echo "  --no-cache   Build Docker images without using cache"
+      exit 0
+      ;;
+    *)
+      ;;
+  esac
+done
+
+echo "[setup] Building MySQL..."
+docker compose build $BUILD_CACHE_FLAG mysql
+
+echo "[setup] Bringing up MySQL..."
+docker compose up -d mysql
+
+echo "[setup] Waiting for MySQL to be healthy..."
+for i in {1..60}; do
+	status=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}healthy{{end}}' "${MYSQL_CONTAINER_NAME}" 2>/dev/null || true)
+	if [[ "$status" == "healthy" ]]; then
+		echo "[setup] MySQL is healthy."
+		break
+	fi
+	sleep 2
+done
+
+echo "[setup] Building API image..."
+docker compose build $BUILD_CACHE_FLAG api
+
+echo "[setup] Running API setup (composer setup script)..."
+docker compose run --rm api sh -lc 'composer run-script setup --no-interaction'
+
+if [[ "$SEED_AFTER_SETUP" -eq 1 ]]; then
+  echo "[setup] Seeding database..."
+  "$(dirname "$0")/seed"
+else
+  echo "[setup] Skipping seed (use --with-seed to force)."
+fi
+
+echo "[setup] Done. Start the stack with: stack start"

@@ -1,0 +1,35 @@
+### GET People Index
+GET {{host}}/api/people
+Accept: application/json
+
+### GET People Index By Name
+GET {{host}}/api/people?name=bi
+Accept: application/json
+
+### GET People Index By Name Paginated
+GET {{host}}/api/people?name=bi&per_page=2&page=2
+Accept: application/json
+
+### GET People By Id
+GET {{host}}/api/people/11
+Accept: application/json
+
+### GET Movies Index
+GET {{host}}/api/movies
+Accept: application/json
+
+### GET Movies Index By Title
+GET {{host}}/api/movies?title=re
+Accept: application/json
+
+### GET Movies Index By Title Paginated
+GET {{host}}/api/movies?title=new&per_page=2&page=2
+Accept: application/json
+
+### GET Movies By Id
+GET {{host}}/api/movies/1
+Accept: application/json
+
+### GET Stats
+GET {{host}}/api/stats
+Accept: application/json

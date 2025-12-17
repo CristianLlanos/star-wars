@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Import a SQL file into the docker-compose MySQL service
+# Usage:
+#   ./seed                # imports ./star-wars.sql
+#   ./seed path/to/file.sql
+#
+# Notes:
+# - Uses MySQL root user with password from docker-compose (default: root)
+# - Will start the MySQL service if it's not running, and wait until healthy
+# - The SQL file may CREATE/USE its own database (e.g., star_wars_api)
+
+SQL_FILE=${1:-star-wars.sql}
+SERVICE=mysql
+MYSQL_CONTAINER_NAME=star-wars-mysql
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+
+if [[ ! -f "$SQL_FILE" ]]; then
+  echo "[seed] SQL file not found: $SQL_FILE" >&2
+  exit 1
+fi
+
+# Ensure MySQL service is up
+if ! docker compose ps --status running --services | grep -q "^${SERVICE}$"; then
+  echo "[seed] Starting MySQL service..."
+  docker compose up -d ${SERVICE}
+fi
+
+# Wait for healthcheck to report healthy
+echo "[seed] Waiting for MySQL to be healthy..."
+for i in {1..60}; do
+  status=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}healthy{{end}}' "${MYSQL_CONTAINER_NAME}" 2>/dev/null || true)
+  if [[ "$status" == "healthy" ]]; then
+    echo "[seed] MySQL is healthy."
+    break
+  fi
+  sleep 2
+  if (( i == 60 )); then
+    echo "[seed] Timed out waiting for MySQL healthcheck." >&2
+    exit 1
+  fi
+done
+
+# Import the SQL file using the mysql client inside the container
+# No DB name is provided so the SQL can CREATE/USE its own DB
+echo "[seed] Importing '$SQL_FILE' into MySQL..."
+cat "$SQL_FILE" | docker compose exec -T ${SERVICE} sh -lc "mysql -uroot -p\"${MYSQL_ROOT_PASSWORD}\""
+
+echo "[seed] Import complete."

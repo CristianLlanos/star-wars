@@ -1,0 +1,66 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+SCRIPT_DIR="${0:A:h}"
+SCRIPTS_DIR="${SCRIPT_DIR}/scripts"
+
+print_help() {
+  cat <<'EOF'
+Star Wars – Stack Manager
+
+Usage:
+  stack <command> [options]
+
+Commands:
+  start         Start the stack. Use '--setup' to run setup first.
+  setup         One-time project setup.
+  seed          Seed MySQL service. Imports 'star-wars.sql' by default.
+  logs          Tail logs for all or specific services.
+  down          Stop and remove the stack; also deletes '.mysql' and '.bootstrapped'.
+  stop          Stop services without removing them.
+
+Global Options:
+  --help, -h    Show this help.
+
+Setup Options (for 'stack setup' and forwarded via 'stack start --setup'):
+  --no-seed     Skip database seeding during setup
+  --with-seed   Force database seeding (default)
+  --no-cache    Build Docker images without using cache
+
+Down Options (passed to 'docker compose down'):
+  e.g. -v, --remove-orphans
+
+Examples:
+  stack start
+  stack start --setup --no-cache
+  stack setup --no-seed
+  stack seed
+  stack down -v
+  stack logs
+  stack logs api web
+  stack stop
+EOF
+}
+
+if [[ $# -eq 0 || "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  print_help
+  exit 0
+fi
+
+cmd="$1"; shift
+
+case "$cmd" in
+  start|seed|down|logs|setup|stop)
+    if [[ -x "${SCRIPTS_DIR}/$cmd" ]]; then
+      exec "${SCRIPTS_DIR}/$cmd" "$@"
+    else
+      echo "Error: '$cmd' script not found in ${SCRIPTS_DIR}" >&2
+      exit 1
+    fi
+    ;;
+  *)
+    echo "Unknown command: $cmd" >&2
+    echo "Use '--help' to see available commands." >&2
+    exit 1
+    ;;
+esac

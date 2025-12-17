@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BOOTSTRAP_FILE="$PROJECT_ROOT/.bootstrapped"
+RUN_SETUP_FLAG=${1:-}
+
+if [[ "$RUN_SETUP_FLAG" == "setup" || "$RUN_SETUP_FLAG" == "--setup" ]]; then
+  shift || true
+  echo "[start] Setup flag provided. Running setup..."
+  "$PROJECT_ROOT/scripts/setup" "$@"
+  [[ -f "$BOOTSTRAP_FILE" ]] || touch "$BOOTSTRAP_FILE"
+  echo "[start] Setup complete. Marker present at $BOOTSTRAP_FILE"
+elif [[ ! -f "$BOOTSTRAP_FILE" ]]; then
+  echo "[start] First run detected. Bootstrapping API..."
+  "$PROJECT_ROOT/scripts/setup"
+  touch "$BOOTSTRAP_FILE"
+  echo "[start] Bootstrapping complete. Marker created at $BOOTSTRAP_FILE"
+else
+  echo "[start] Already bootstrapped. Skipping setup."
+fi
+
+echo "[start] Bringing up the stack in background..."
+(cd "$PROJECT_ROOT" && docker compose up -d --build)
+
+# Wait for star-wars-web to report readiness in logs before finishing
+READY_PATTERN="✓ Ready"
+echo "[start] Waiting for star-wars-web to be ready..."
+
+# Fast path: if the message already exists in historical logs, we're done
+if (cd "$PROJECT_ROOT" && docker compose logs --no-color web 2>/dev/null | grep -q "$READY_PATTERN"); then
+  echo "[start] star-wars-web is ready."
+else
+  echo "[start] This may take a moment. Watching web logs for readiness..."
+  # Stream logs and stop at the first match; avoid pipefail breaking on SIGPIPE
+  set +o pipefail
+  (cd "$PROJECT_ROOT" && (docker compose logs -f --no-color web || true) | grep -m 1 -F "$READY_PATTERN") &
+  WATCH_PID=$!
+  set -o pipefail
+
+  # Simple spinner while waiting
+  spinner='-\\|/'
+  i=0
+  while kill -0 "$WATCH_PID" 2>/dev/null; do
+    i=$(( (i + 1) % 4 ))
+    printf "\r[start] Waiting for star-wars-web to be ready %s" "${spinner:$i:1}"
+    sleep 0.2
+  done
+  wait "$WATCH_PID" || true
+  printf "\r[start] star-wars-web is ready!                      \n"
+fi
+
+echo "[start] You can access the API at http://localhost:8800"
+echo "[start] You can access the Web at http://localhost:8900"
+
+echo
+read -r -p "[start] Do you want to attach live logs? (y/N): " answer
+
+case "$answer" in
+  y|Y|yes|YES)
+    echo "[start] Attaching live logs. Press Ctrl-C to exit."
+    exec "$PROJECT_ROOT/scripts/logs"
+    ;;
+  *)
+    echo "[start] Logs not attached."
+    ;;
+esac

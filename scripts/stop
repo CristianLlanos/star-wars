@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Stop the Docker Compose services without removing containers
+# Optional flags are passed through, e.g.:
+#   ./stop --timeout 30
+
+exec docker compose stop "$@"

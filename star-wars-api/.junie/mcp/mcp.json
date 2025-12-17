@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "/Users/cris/.config/herd-lite/bin/php",
+            "args": [
+                "/Users/cris/Code/testing/star-wars/star-wars-api/artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}
