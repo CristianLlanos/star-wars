@@ -23,7 +23,7 @@ Also, the web app may take a minute to be available as it needs to build the Nex
 # Start the stack (will setup API, seeds MySQL with data on first run, and start all services including Cron jobs, Queue workers, etc.)
 ./stack start
 
-# Remove the stack when done (stops and removes containers, networks, volumes, and images created by up)
+# Remove the stack when done (stops and removes containers, networks, volumes, and images created by docker compose)
 ./stack down
 ```
 
