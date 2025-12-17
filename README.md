@@ -29,10 +29,30 @@ Also, the web app may take a minute to be available as it needs to build the Nex
 
 ## Services
 - Web: http://localhost:8900
-- Stats Web: http://localhost:8900/dashboard
 - API: http://localhost:8800
-- Stats API: http://localhost:8800/api/stats
 - MySQL: host 127.0.0.1:3366 (db `starwars`, user `starwars`, pass `starwars`)
+
+### Web
+
+- Search for Star Wars movies and people by name/title with debounced real-time results
+- View movie and people details
+- View usage stats dashboard
+
+### API
+
+- Endpoints for searching and retrieving movies and people
+- Automatic stats tracking middleware for API requests
+- Background job for computing stats every 5 minutes
+- MySQL database for data storage
+- Data synced from the official Star Wars API (SWAPI) on first setup
+- Artisan commands for data sync, stats computation, and migrations
+
+### Stats
+- Stats Web: http://localhost:8900/dashboard
+- Stats API: http://localhost:8800/api/stats
+
+Stats are automatically tracked for API requests (people queried, person viewed, movies queried, movie viewed).
+Those stats are computed in the background by a scheduled job that runs every 5 minutes inside the API container.
 
 ## Volumes and live reload
 - API code: bind-mounted `./star-wars-api -> /var/www/html`
