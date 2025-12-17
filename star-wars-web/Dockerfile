@@ -15,4 +15,4 @@ USER nextjs
 
 EXPOSE 8100
 
-CMD ["sh", "-c", "npm ci && npm run dev"]
+CMD ["sh", "-c", "npm ci && npm run setup && npm run dev"]
