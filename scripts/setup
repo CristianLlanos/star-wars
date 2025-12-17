@@ -50,9 +50,6 @@ for i in {1..60}; do
 	sleep 2
 done
 
-echo "[setup] Building API image..."
-docker compose build $BUILD_CACHE_FLAG api
-
 echo "[setup] Running API setup (composer setup script)..."
 docker compose run --rm api sh -lc 'composer run-script setup --no-interaction'
 
@@ -62,5 +59,8 @@ if [[ "$SEED_AFTER_SETUP" -eq 1 ]]; then
 else
   echo "[setup] Skipping seed (use --with-seed to force)."
 fi
+
+echo "[setup] Building API image..."
+docker compose build $BUILD_CACHE_FLAG api
 
 echo "[setup] Done. Start the stack with: stack start"
