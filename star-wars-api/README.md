@@ -178,14 +178,48 @@ All routes are prefixed with `/api` and include automatic stats tracking middlew
     - Average request times by endpoint
     - Most popular hours of day (UTC)
 
-### Standard Laravel Commands
+## Scheduled Tasks (Cron Jobs)
 
-- **`php artisan migrate`** - Run database migrations
-- **`php artisan db:seed`** - Seed database
-- **`php artisan test`** - Run Pest test suite
-- **`php artisan serve`** - Start development server
-- **`php artisan queue:listen`** - Process queue jobs
-- **`php artisan schedule:work`** - Run task scheduler
+The API includes automated scheduled tasks defined in `routes/console.php`:
+
+### Stats Computation Job
+
+- **Job**: `ComputeStatsJob`
+- **Schedule**: Every 5 minutes
+- **Overlap**: Prevented (won't start if previous job still running)
+- **Timeout**: 60 seconds
+- **Retries**: 1 attempt
+
+**What it does**:
+Automatically computes and caches analytics data from event logs:
+1. Top movie queries (percentage distribution)
+2. Top person queries (percentage distribution)
+3. Average request times by endpoint
+4. Most popular hours of day (UTC)
+
+**Implementation**:
+```php
+Schedule::job(new ComputeStatsJob)->everyFiveMinutes()->withoutOverlapping();
+```
+
+**Running the Scheduler**:
+The scheduler requires a worker process to run scheduled tasks:
+
+```zsh
+# Start the scheduler (included in composer run dev)
+php artisan schedule:work
+
+# Or use the queue system
+php artisan queue:listen
+```
+
+When running via Docker (`./stack start`), the scheduler runs automatically as part of the `composer run dev` command.
+
+**Manual Execution**:
+You can manually trigger stats computation:
+```zsh
+php artisan stats:compute  # Display in console
+```
 
 ## Domain Modules
 

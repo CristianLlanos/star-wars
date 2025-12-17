@@ -48,11 +48,14 @@ Also, the web app may take a minute to be available as it needs to build the Nex
 # Use the stack aggregator to manage the environment
 ./stack --help          # show usage and available commands
 
-# open a shell in the API container
-docker compose exec api sh
+# compute stats on demand
+docker compose exec api php artisan stats:compute
 
 # run migrations
 docker compose exec api php artisan migrate
+
+# open a shell in the API container
+docker compose exec api sh
 
 # install API deps
 docker compose exec api sh -lc 'composer install'
